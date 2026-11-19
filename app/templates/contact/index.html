@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Contacto | FastAPI Blog{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 p-md-5 bg-white rounded-4">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex p-3 rounded-circle bg-primary bg-opacity-10 text-primary mb-3">
+                        <i class="bi bi-envelope-paper-heart fs-2"></i>
+                    </div>
+                    <h1 class="h2 fw-bold text-dark">Formulario de Contacto</h1>
+                    <p class="text-muted">¿Tienes alguna duda, propuesta o comentario? Envíanos un mensaje y te responderemos a la brevedad.</p>
+                </div>
+
+                {% if success %}
+                <div class="alert alert-success d-flex align-items-center shadow-sm p-3 mb-4 rounded-3" role="alert">
+                    <i class="bi bi-check-circle-fill fs-3 text-success me-3"></i>
+                    <div>
+                        <h5 class="alert-heading fw-bold mb-1">¡Mensaje enviado con éxito!</h5>
+                        <p class="mb-0 small">Gracias por contactarnos. Hemos recibido tu mensaje y revisaremos tu comentario.</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if form and form.errors %}
+                <div class="alert alert-danger shadow-sm mb-4">
+                    <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Por favor revisa los errores:</h6>
+                    <ul class="mb-0 ps-3 small">
+                        {% for err in form.errors %}
+                        <li>{{ err }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <form action="/contact" method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label fw-semibold">Nombre Completo</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       placeholder="Tu nombre" 
+                                       value="{{ form.name if form else (current_user.username if current_user else '') }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="email" class="form-label fw-semibold">Gmail / Correo Electrónico</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="tu.correo@gmail.com" 
+                                       value="{{ form.email if form else (current_user.email if current_user else '') }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="subject" class="form-label fw-semibold">Asunto</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                <input type="text" class="form-control" id="subject" name="subject" 
+                                       placeholder="Motivo del contacto" 
+                                       value="{{ form.subject if form else '' }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="message" class="form-label fw-semibold">Comentario / Mensaje</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" 
+                                      placeholder="Escribe tu mensaje o comentario detallado aquí..." required>{{ form.message if form else '' }}</textarea>
+                        </div>
+
+                        <div class="col-12 text-center pt-3">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">
+                                <i class="bi bi-send-fill me-2"></i> Enviar Mensaje
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

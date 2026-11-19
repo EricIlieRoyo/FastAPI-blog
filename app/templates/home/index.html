@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio | FastAPI Blog{% endblock %}
+
+{% block content %}
+<!-- Carrusel Principal de Posts Seleccionados -->
+<div class="container my-4">
+    {% if carousel_posts %}
+    <div id="homeCarousel" class="carousel slide shadow-lg rounded-4 overflow-hidden" data-bs-ride="carousel" data-bs-interval="5000">
+        <!-- Indicadores -->
+        <div class="carousel-indicators">
+            {% for post in carousel_posts %}
+            <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="{{ loop.index0 }}" 
+                    class="{% if loop.first %}active{% endif %}" aria-current="{% if loop.first %}true{% endif %}" 
+                    aria-label="Slide {{ loop.index }}"></button>
+            {% endfor %}
+        </div>
+
+        <!-- Slides -->
+        <div class="carousel-inner">
+            {% for post in carousel_posts %}
+            <div class="carousel-item {% if loop.first %}active{% endif %} position-relative carousel-slide-item">
+                {% if post.image_url %}
+                <img src="{{ post.image_url }}" class="d-block w-100 carousel-img" alt="{{ post.title }}"
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80';">
+                {% else %}
+                <div class="carousel-gradient-bg d-block w-100 carousel-img"></div>
+                {% endif %}
+                <div class="carousel-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center">
+                    <div class="container px-4 px-md-5">
+                        <div class="col-lg-8 text-white">
+                            <h2 class="display-5 fw-bold mb-3 text-shadow">{{ post.title }}</h2>
+                            <p class="fs-5 text-light text-shadow mb-4 d-none d-md-block">
+                                {{ post.content[:160] }}{% if post.content|length > 160 %}...{% endif %}
+                            </p>
+                            <div>
+                                <a href="/posts/{{ post.id }}" class="btn btn-primary btn-lg px-4 shadow">
+                                    <i class="bi bi-book-half me-1"></i> Leer Artículo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Controles -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+        </button>
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm bg-white p-4 p-md-5 rounded-4 text-center my-3">
+        <div class="py-4">
+            <i class="bi bi-images display-3 text-primary mb-3"></i>
+            <h3 class="fw-bold">No hay publicaciones seleccionadas en el carrusel</h3>
+            <p class="text-muted col-md-8 mx-auto">
+                Puedes elegir qué posts destacar en este carrusel directamente desde el <strong>Panel de Administración</strong> marcando la opción <em>"En Carrusel"</em>.
+            </p>
+            {% if current_user and current_user.is_admin %}
+            <a href="/admin" class="btn btn-primary mt-2">
+                <i class="bi bi-gear-fill me-1"></i> Ir al Panel de Admin para activar posts en el carrusel
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Sección de Artículos Recientes -->
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 fw-bold mb-1">Últimos Artículos del Blog</h2>
+            <p class="text-muted mb-0">Publicaciones recientes y novedades</p>
+        </div>
+        <a href="/blog" class="btn btn-outline-primary">
+            Ver Todo el Blog <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    {% if recent_posts %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for post in recent_posts %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm blog-card">
+                {% if post.image_url %}
+                <img src="{{ post.image_url }}" class="card-img-top blog-card-img" alt="{{ post.title }}"
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=600&q=80';">
+                {% else %}
+                <div class="card-img-top blog-card-default-img d-flex align-items-center justify-content-center text-white">
+                    <i class="bi bi-journal-text display-4"></i>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between text-muted small mb-2">
+                        <span><i class="bi bi-person me-1"></i>{{ post.author }}</span>
+                        <span><i class="bi bi-calendar3 me-1"></i>{{ post.created_at.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                    <h5 class="card-title fw-bold">
+                        <a href="/posts/{{ post.id }}" class="text-decoration-none text-dark stretched-link">
+                            {{ post.title }}
+                        </a>
+                    </h5>
+                    <p class="card-text text-secondary flex-grow-1">
+                        {{ post.content[:110] }}{% if post.content|length > 110 %}...{% endif %}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top text-muted small">
+                        <span><i class="bi bi-chat-left me-1"></i>{{ post.comments|length }} comentarios</span>
+                        <span class="text-primary fw-semibold">Leer más &rarr;</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted text-center py-4">No hay publicaciones disponibles.</p>
+    {% endif %}
+</div>
+{% endblock %}

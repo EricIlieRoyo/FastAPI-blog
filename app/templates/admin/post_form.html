@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Editar Post{% else %}Nuevo Post{% endif %} | Panel Admin{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 p-md-5 bg-white rounded-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <h2 class="h3 fw-bold mb-0">
+                        <i class="bi bi-pencil-square text-primary me-2"></i>
+                        {% if is_edit %}Editar Post{% else %}Crear Nuevo Post{% endif %}
+                    </h2>
+                    <a href="/admin" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Volver al Panel
+                    </a>
+                </div>
+
+                {% if form and form.errors %}
+                <div class="alert alert-danger shadow-sm mb-4">
+                    <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Corrige los siguientes errores:</h6>
+                    <ul class="mb-0 ps-3 small">
+                        {% for err in form.errors %}
+                        <li>{{ err }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <form action="{% if is_edit %}/admin/posts/{{ post.id }}/edit{% else %}/admin/posts/new{% endif %}" method="POST">
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-semibold">Título del Post</label>
+                        <input type="text" class="form-control form-control-lg" id="title" name="title" 
+                               placeholder="Ej: Explorando FastAPI 2026 y Arquitectura por Capas" 
+                               value="{{ form.title if form else (post.title if is_edit else '') }}" required autofocus>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="author" class="form-label fw-semibold">Autor</label>
+                            <input type="text" class="form-control" id="author" name="author" 
+                                   placeholder="Nombre del autor" 
+                                   value="{{ form.author if form else (post.author if is_edit else current_user.username) }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="image_url" class="form-label fw-semibold">URL de Imagen de Portada (Opcional)</label>
+                            <input type="url" class="form-control" id="image_url" name="image_url" 
+                                   placeholder="https://ejemplo.com/imagen.jpg" 
+                                   value="{{ form.image_url if form else (post.image_url if is_edit and post.image_url else '') }}">
+                            <div class="form-text small">Ideal para que se vea atractiva en el carrusel de inicio.</div>
+                        </div>
+                    </div>
+
+                    <!-- Opción de Carrusel de Inicio -->
+                    <div class="card bg-light border-0 p-3 mb-4 rounded-3">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="in_carousel" name="in_carousel" value="true"
+                                   {% if (form and form.in_carousel) or (is_edit and post.in_carousel) %}checked{% endif %}>
+                            <label class="form-check-label fw-bold text-dark" for="in_carousel">
+                                <i class="bi bi-images text-warning me-1"></i> Incluir en el carrusel de la página de inicio
+                            </label>
+                            <div class="form-text small text-muted">
+                                Al marcar esta casilla, este post aparecerá destacado en el carrusel principal que ven los usuarios al entrar al sitio.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="content" class="form-label fw-semibold">Contenido del Post</label>
+                        <textarea class="form-control" id="content" name="content" rows="10" 
+                                  placeholder="Escribe el cuerpo completo del artículo..." required>{{ form.content if form else (post.content if is_edit else '') }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="/admin" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm">
+                            <i class="bi bi-cloud-arrow-up me-1"></i>
+                            {% if is_edit %}Guardar Cambios{% else %}Publicar Post{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

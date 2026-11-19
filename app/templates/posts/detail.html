@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} | FastAPI Blog{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+
+            <!-- Navegación migas de pan -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="/blog" class="text-decoration-none">Blog</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ post.title[:30] }}...</li>
+                </ol>
+            </nav>
+
+            <!-- Artículo -->
+            <article class="card border-0 shadow-sm p-4 p-md-5 mb-5 bg-white rounded-4 overflow-hidden">
+                {% if post.image_url %}
+                <img src="{{ post.image_url }}" class="img-fluid rounded-3 mb-4 w-100" style="max-height: 420px; object-fit: cover;" alt="{{ post.title }}"
+                     onerror="this.style.display='none'">
+                {% endif %}
+
+                <header class="border-bottom pb-4 mb-4">
+                    <h1 class="display-6 fw-bold mb-3 text-dark">{{ post.title }}</h1>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center text-muted small">
+                        <div class="mb-2 mb-md-0">
+                            <span class="me-3"><i class="bi bi-person-circle text-primary me-1"></i><strong>{{ post.author }}</strong></span>
+                            <span><i class="bi bi-calendar3 me-1"></i>{{ post.created_at.strftime('%d de %B de %Y, %H:%M') }}</span>
+                        </div>
+                        {% if current_user and current_user.is_admin %}
+                        <div class="btn-group btn-group-sm">
+                            <a href="/admin/posts/{{ post.id }}/edit" class="btn btn-outline-secondary">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </a>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="bi bi-trash me-1"></i>Eliminar
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </header>
+
+                <div class="article-content fs-5 lh-lg text-dark mb-4" style="white-space: pre-line;">
+                    {{ post.content }}
+                </div>
+            </article>
+
+            <!-- Sección de Comentarios -->
+            <section id="comments" class="card border-0 shadow-sm p-4 p-md-5 mb-5 bg-white rounded-4">
+                <h3 class="h4 fw-bold mb-4">
+                    <i class="bi bi-chat-left-dots text-primary me-2"></i>Comentarios ({{ post.comments|length }})
+                </h3>
+
+                <!-- Formulario de nuevo comentario -->
+                <div class="bg-light p-3 p-md-4 rounded-3 mb-4">
+                    <h5 class="h6 fw-bold mb-3">Deja un comentario</h5>
+
+                    {% if comment_form and comment_form.errors %}
+                    <div class="alert alert-danger py-2 small shadow-sm mb-3">
+                        <ul class="mb-0 ps-3">
+                            {% for err in comment_form.errors %}
+                            <li>{{ err }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <form action="/posts/{{ post.id }}/comments" method="POST">
+                        <div class="mb-3">
+                            <label for="author_name" class="form-label small fw-semibold">Nombre o Alias</label>
+                            <input type="text" class="form-control" id="author_name" name="author_name" 
+                                   value="{{ comment_form.author_name if comment_form else (current_user.username if current_user else '') }}" 
+                                   placeholder="Tu nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label small fw-semibold">Comentario</label>
+                            <textarea class="form-control" id="content" name="content" rows="3" 
+                                      placeholder="Escribe tu opinión o comentario aquí..." required>{{ comment_form.content if comment_form else '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm px-3">
+                            <i class="bi bi-send me-1"></i> Publicar comentario
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lista de comentarios existentes -->
+                {% if post.comments %}
+                    <div class="comments-list">
+                        {% for comment in post.comments %}
+                        <div class="d-flex mb-3 pb-3 border-bottom">
+                            <div class="avatar-circle me-3 flex-shrink-0 bg-primary text-white text-center fw-bold">
+                                {{ comment.author_name[0]|upper }}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h6 class="mb-0 fw-semibold">{{ comment.author_name }}</h6>
+                                    <small class="text-muted">{{ comment.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                                </div>
+                                <p class="mb-0 text-secondary" style="white-space: pre-line;">{{ comment.content }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-3 mb-0">Sé el primero en comentar esta publicación.</p>
+                {% endif %}
+            </section>
+
+        </div>
+    </div>
+</div>
+
+{% if current_user and current_user.is_admin %}
+<!-- Modal para confirmar eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar este artículo permanentemente? Esta acción no se puede deshacer.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="/admin/posts/{{ post.id }}/delete" method="POST">
+                    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

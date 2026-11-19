@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión | FastAPI Blog{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow p-4 p-md-5 bg-white rounded-4">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex p-3 rounded-circle bg-primary bg-opacity-10 text-primary mb-2">
+                        <i class="bi bi-shield-lock fs-2"></i>
+                    </div>
+                    <h2 class="h3 fw-bold text-dark">Iniciar Sesión</h2>
+                    <p class="text-muted small">Accede a tu cuenta del blog o al panel de administración</p>
+                </div>
+
+                {% if form and form.errors %}
+                <div class="alert alert-danger py-2 small shadow-sm">
+                    <ul class="mb-0 ps-3">
+                        {% for err in form.errors %}
+                        <li>{{ err }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <form action="/login" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-semibold">Nombre de Usuario</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   placeholder="Tu usuario" 
+                                   value="{{ form.username if form else '' }}" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm mb-3">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
+                    </button>
+                </form>
+
+                <div class="text-center border-top pt-3 text-muted small">
+                    ¿Aún no tienes cuenta? <a href="/register" class="text-primary text-decoration-none fw-semibold">Regístrate aquí</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

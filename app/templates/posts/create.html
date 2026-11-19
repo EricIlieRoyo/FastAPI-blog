@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Artículo | FastAPI Blog{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4 p-md-5 bg-white rounded-3">
+            <h2 class="fw-bold mb-4"><i class="bi bi-pencil-square text-primary me-2"></i>Crear Nuevo Artículo</h2>
+
+            {% if form and form.errors %}
+            <div class="alert alert-danger mb-4">
+                <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Por favor corrige los siguientes errores:</h6>
+                <ul class="mb-0 ps-3">
+                    {% for err in form.errors %}
+                    <li>{{ err }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form action="/posts/new" method="POST">
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-semibold">Título del Artículo</label>
+                    <input type="text" class="form-control form-control-lg" id="title" name="title" 
+                           placeholder="Ej: Novedades en FastAPI y Python 3.12" 
+                           value="{{ form.title if form else '' }}" required>
+                    <div class="form-text">Debe tener al menos 3 caracteres.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="author" class="form-label fw-semibold">Autor</label>
+                    <input type="text" class="form-control" id="author" name="author" 
+                           placeholder="Ej: Alex Dev" 
+                           value="{{ form.author if form else '' }}" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="content" class="form-label fw-semibold">Contenido</label>
+                    <textarea class="form-control" id="content" name="content" rows="10" 
+                              placeholder="Escribe el cuerpo completo del artículo..." required>{{ form.content if form else '' }}</textarea>
+                    <div class="form-text">Mínimo 10 caracteres.</div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <a href="/posts" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4 py-2">
+                        <i class="bi bi-cloud-arrow-up me-1"></i> Publicar Artículo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
